@@ -3,6 +3,7 @@
 @using VisionSharp
 @using VisionSharp.Abstractions.Enums
 @using VisionSharp.Processing.Extensions
+@using VisionSharp.Extensions
 @inject IWebHostEnvironment Env
 @implements IDisposable
 
@@ -55,7 +56,7 @@
             <div class="panel-footer">
                 @if (_processedDataUrl is not null)
                 {
-                    <a class="btn-ghost" href="@_processedDataUrl" download="visionsharp_result.jpg">Download</a>
+                    <a class="btn-ghost" href="@_processedDataUrl" download="@($"visionsharp_result.{_outputFormat}")">Download</a>
                 }
             </div>
         </div>
@@ -63,11 +64,15 @@
 
     <div class="controls-grid">
 
-        <section class="ctrl-card">
+        <section class="ctrl-card ctrl-wide">
             <h3 class="ctrl-title">Presets</h3>
             <div class="toggle-row">
-                <button class="@Cls(_vintage)"    @onclick="async () => { _vintage    = !_vintage;    await ProcessAsync(); }">Vintage</button>
-                <button class="@Cls(_blackWhite)" @onclick="async () => { _blackWhite = !_blackWhite; await ProcessAsync(); }">B &amp; W</button>
+                <button class="@Cls(_vintage)"     @onclick="async () => { _vintage     = !_vintage;     await ProcessAsync(); }">Vintage</button>
+                <button class="@Cls(_blackWhite)"  @onclick="async () => { _blackWhite  = !_blackWhite;  await ProcessAsync(); }">B &amp; W</button>
+                <button class="@Cls(_warmTone)"    @onclick="async () => { _warmTone    = !_warmTone;    await ProcessAsync(); }">Warm Tone</button>
+                <button class="@Cls(_coolTone)"    @onclick="async () => { _coolTone    = !_coolTone;    await ProcessAsync(); }">Cool Tone</button>
+                <button class="@Cls(_softFocus)"   @onclick="async () => { _softFocus   = !_softFocus;   await ProcessAsync(); }">Soft Focus</button>
+                <button class="@Cls(_darkOverlay)" @onclick="async () => { _darkOverlay = !_darkOverlay; await ProcessAsync(); }">Dark Overlay</button>
             </div>
         </section>
 
@@ -80,13 +85,45 @@
         </section>
 
         <section class="ctrl-card">
+            <h3 class="ctrl-title">Adjust</h3>
+            <div class="slider-row">
+                <span class="slider-label">Brightness</span>
+                <input type="range" min="-100" max="100" value="@_brightness"
+                       @oninput="e => OnSlider(e, v => _brightness = v)"
+                       class="slider" />
+                <span class="slider-val">@(_brightness > 0 ? $"+{_brightness}" : _brightness.ToString())</span>
+            </div>
+            <div class="slider-row" style="margin-top:.4rem">
+                <span class="slider-label">Contrast</span>
+                <input type="range" min="-100" max="100" value="@_contrast"
+                       @oninput="e => OnSlider(e, v => _contrast = v)"
+                       class="slider" />
+                <span class="slider-val">@(_contrast > 0 ? $"+{_contrast}" : _contrast.ToString())</span>
+            </div>
+            <div class="slider-row" style="margin-top:.4rem">
+                <span class="slider-label">Opacity</span>
+                <input type="range" min="0" max="100" value="@_opacity"
+                       @oninput="e => OnSlider(e, v => _opacity = v)"
+                       class="slider" />
+                <span class="slider-val">@_opacity%</span>
+            </div>
+        </section>
+
+        <section class="ctrl-card">
             <h3 class="ctrl-title">Focus</h3>
             <div class="slider-row">
-                <span class="slider-label">Blur</span>
-                <input type="range" min="0" max="10" value="@_blur"
-                       @oninput="@(e => OnSlider(e, v => _blur = v))"
+                <span class="slider-label">Box Blur</span>
+                <input type="range" min="0" max="20" value="@_blur"
+                       @oninput="e => OnSlider(e, v => _blur = v)"
                        class="slider" />
-                <span class="slider-val">@_blur</span>
+                <span class="slider-val">@(_blur == 0 ? "off" : _blur.ToString())</span>
+            </div>
+            <div class="slider-row" style="margin-top:.4rem">
+                <span class="slider-label">Gaussian</span>
+                <input type="range" min="0" max="50" value="@_gaussianBlur"
+                       @oninput="e => OnSlider(e, v => _gaussianBlur = v)"
+                       class="slider" />
+                <span class="slider-val">@(_gaussianBlur == 0 ? "off" : $"{_gaussianBlur / 10f:F1}σ")</span>
             </div>
             <div class="toggle-row" style="margin-top:.5rem">
                 <button class="@Cls(_sharpen)" @onclick="async () => { _sharpen = !_sharpen; await ProcessAsync(); }">Sharpen</button>
@@ -101,6 +138,13 @@
                        @oninput="e => OnSlider(e, v => _rotate = v)"
                        class="slider" />
                 <span class="slider-val">@_rotate°</span>
+            </div>
+            <div class="slider-row" style="margin-top:.4rem">
+                <span class="slider-label">Scale</span>
+                <input type="range" min="25" max="200" value="@_scale"
+                       @oninput="e => OnSlider(e, v => _scale = v)"
+                       class="slider" />
+                <span class="slider-val">@_scale%</span>
             </div>
             <div class="toggle-row" style="margin-top:.5rem">
                 <button class="@Cls(_flipH)" @onclick="async () => { _flipH = !_flipH; await ProcessAsync(); }">Flip H</button>
@@ -119,21 +163,78 @@
             </div>
         </section>
 
-        <section class="ctrl-card">
+        <section class="ctrl-card ctrl-wide">
             <h3 class="ctrl-title">Text Watermark</h3>
             <input class="text-input" type="text" placeholder="Watermark text…"
                    value="@_watermarkText"
-                   @oninput="@(e => OnWatermarkInput(e))" />
+                   @oninput="e => OnWatermarkInput(e)" />
+            <select class="ctrl-select" @bind="_watermarkPositionStr" @bind:after="ProcessAsync">
+                @foreach (var pos in Enum.GetValues<WatermarkPosition>())
+                {
+                    <option value="@pos">@FormatPosition(pos)</option>
+                }
+            </select>
+            <div class="slider-row" style="margin-top:.5rem">
+                <span class="slider-label">Opacity</span>
+                <input type="range" min="0" max="100" value="@_watermarkOpacity"
+                       @oninput="e => OnSlider(e, v => _watermarkOpacity = v)"
+                       class="slider" />
+                <span class="slider-val">@_watermarkOpacity%</span>
+            </div>
+            <div class="slider-row" style="margin-top:.4rem">
+                <span class="slider-label">Font size</span>
+                <input type="range" min="12" max="120" value="@_watermarkFontSize"
+                       @oninput="e => OnSlider(e, v => _watermarkFontSize = v)"
+                       class="slider" />
+                <span class="slider-val">@_watermarkFontSize</span>
+            </div>
             <div class="toggle-row" style="margin-top:.5rem">
                 <button class="@Cls(_showWatermark)" @onclick="async () => { _showWatermark = !_showWatermark; await ProcessAsync(); }">Enable</button>
             </div>
         </section>
-        
+
         <section class="ctrl-card">
             <h3 class="ctrl-title">Image Watermark</h3>
+            <select class="ctrl-select" @bind="_imageWatermarkPositionStr" @bind:after="ProcessAsync">
+                @foreach (var pos in Enum.GetValues<WatermarkPosition>())
+                {
+                    <option value="@pos">@FormatPosition(pos)</option>
+                }
+            </select>
+            <div class="slider-row" style="margin-top:.5rem">
+                <span class="slider-label">Opacity</span>
+                <input type="range" min="0" max="100" value="@_imageWatermarkOpacity"
+                       @oninput="e => OnSlider(e, v => _imageWatermarkOpacity = v)"
+                       class="slider" />
+                <span class="slider-val">@_imageWatermarkOpacity%</span>
+            </div>
             <div class="toggle-row" style="margin-top:.5rem">
                 <button class="@Cls(_showImageWatermark)" @onclick="async () => { _showImageWatermark = !_showImageWatermark; await ProcessAsync(); }">Enable</button>
             </div>
+        </section>
+
+        <section class="ctrl-card">
+            <h3 class="ctrl-title">Output Format</h3>
+            <div class="toggle-row">
+                @foreach (var fmt in OutputFormats)
+                {
+                    var f = fmt;
+                    <button class="@(f == _outputFormat ? "toggle on" : "toggle")"
+                            @onclick="@(async () => { _outputFormat = f; await ProcessAsync(); })">
+                        @f.ToUpper()
+                    </button>
+                }
+            </div>
+            @if (_outputFormat != "png")
+            {
+                <div class="slider-row" style="margin-top:.5rem">
+                    <span class="slider-label">Quality</span>
+                    <input type="range" min="1" max="100" value="@_outputQuality"
+                           @oninput="e => OnSlider(e, v => _outputQuality = v)"
+                           class="slider" />
+                    <span class="slider-val">@_outputQuality</span>
+                </div>
+            }
         </section>
 
         <section class="ctrl-card ctrl-reset">
@@ -150,40 +251,82 @@
     private bool    _processing;
     private long    _elapsedMs;
 
-    private bool   _grayscale;
-    private bool   _sepia;
-    private bool   _sharpen;
-    private bool   _flipH;
-    private bool   _flipV;
-    private bool   _vintage;
-    private bool   _blackWhite;
-    private int    _blur;
-    private int    _pixelate;
-    private int    _rotate;
-    private string _watermarkText  = "© VisionSharp";
+    // ── Presets ──────────────────────────────────────────────────────────────
+    private bool _vintage, _blackWhite, _warmTone, _coolTone, _softFocus, _darkOverlay;
+
+    // ── Color ────────────────────────────────────────────────────────────────
+    private bool _grayscale, _sepia;
+
+    // ── Adjust ───────────────────────────────────────────────────────────────
+    private int _brightness;        // -100 to 100  →  / 100f
+    private int _contrast;          // -100 to 100  →  / 100f
+    private int _opacity = 100;     //    0 to 100  →  / 100f
+
+    // ── Focus ─────────────────────────────────────────────────────────────────
+    private int  _blur;             // box blur radius 0–20
+    private int  _gaussianBlur;     // 0–50  →  / 10f  sigma
+    private bool _sharpen;
+
+    // ── Transform ────────────────────────────────────────────────────────────
+    private int  _rotate;           // -180 to 180 degrees
+    private int  _scale = 100;      // 25 to 200 percent  →  / 100.0 factor
+    private bool _flipH, _flipV;
+
+    // ── Artistic ─────────────────────────────────────────────────────────────
+    private int _pixelate;
+
+    // ── Text watermark ────────────────────────────────────────────────────────
     private bool   _showWatermark;
+    private string _watermarkText            = "© VisionSharp";
+    private string _watermarkPositionStr     = nameof(WatermarkPosition.BottomRight);
+    private int    _watermarkOpacity         = 70;  // 0–100  →  / 100f
+    private int    _watermarkFontSize        = 48;
+
+    // ── Image watermark ───────────────────────────────────────────────────────
     private bool   _showImageWatermark;
+    private string _imageWatermarkPositionStr = nameof(WatermarkPosition.Center);
+    private int    _imageWatermarkOpacity     = 70;  // 0–100  →  / 100f
+
+    // ── Output format ─────────────────────────────────────────────────────────
+    private string _outputFormat  = "jpeg";
+    private int    _outputQuality = 90;
+
+    private static readonly string[] OutputFormats = ["jpeg", "png", "webp"];
 
     private CancellationTokenSource? _cts;
     private Timer? _debounce;
 
-    // ── CSS helper ──────────────────────────────────────────────────────────
+    // ── CSS helpers ──────────────────────────────────────────────────────────
     private static string Cls(bool on) => on ? "toggle on" : "toggle";
 
-    // ── Init ────────────────────────────────────────────────────────────────
+    private static string FormatPosition(WatermarkPosition pos) => pos switch
+    {
+        WatermarkPosition.TopLeft      => "Top Left",
+        WatermarkPosition.TopCenter    => "Top Center",
+        WatermarkPosition.TopRight     => "Top Right",
+        WatermarkPosition.MiddleLeft   => "Middle Left",
+        WatermarkPosition.Center       => "Center",
+        WatermarkPosition.MiddleRight  => "Middle Right",
+        WatermarkPosition.BottomLeft   => "Bottom Left",
+        WatermarkPosition.BottomCenter => "Bottom Center",
+        WatermarkPosition.BottomRight  => "Bottom Right",
+        _                              => pos.ToString()
+    };
+
+    // ── Init ─────────────────────────────────────────────────────────────────
     protected override async Task OnInitializedAsync()
     {
         var path = Path.Combine(Env.WebRootPath, "image-sample.jpg");
 
-        if (Directory.Exists(Path.Combine(Env.WebRootPath, "output-test"))) Directory.Delete(Path.Combine(Env.WebRootPath, "output-test"), true);
-        
-        Directory.CreateDirectory(Path.Combine(Env.WebRootPath, "output-test"));
-        
+        var outputDir = Path.Combine(Env.WebRootPath, "output-test");
+        if (Directory.Exists(outputDir)) Directory.Delete(outputDir, true);
+        Directory.CreateDirectory(outputDir);
+
         _originalBytes = await File.ReadAllBytesAsync(path);
         await ProcessAsync();
     }
 
-    // ── File replace ────────────────────────────────────────────────────────
+    // ── File upload ──────────────────────────────────────────────────────────
     private async Task HandleFileUploadAsync(InputFileChangeEventArgs e)
     {
         using var ms = new MemoryStream();
@@ -192,7 +335,7 @@
         await ProcessAsync();
     }
 
-    // ── Slider / text handlers (debounced) ──────────────────────────────────
+    // ── Slider / text handlers (debounced) ───────────────────────────────────
     private void OnSlider(ChangeEventArgs e, Action<int> set)
     {
         if (int.TryParse(e.Value?.ToString(), out var v)) set(v);
@@ -211,7 +354,7 @@
         _debounce = new Timer(_ => InvokeAsync(ProcessAsync), null, 250, Timeout.Infinite);
     }
 
-    // ── Processing ──────────────────────────────────────────────────────────
+    // ── Processing ───────────────────────────────────────────────────────────
     private async Task ProcessAsync()
     {
         if (_originalBytes is null) return;
@@ -229,44 +372,92 @@
 
             var builder = ImageFactory.OpenAsync(_originalBytes);
 
-            if (_grayscale)                                     builder = builder.Grayscale();
-            if (_sepia)                                         builder = builder.Sepia();
-            if (_sharpen)                                       builder = builder.Sharpen();
-            if (_blur > 0)                                      builder = builder.Blur(_blur);
-            if (_pixelate > 0)                                  builder = builder.Pixelate(_pixelate);
-            if (_rotate != 0)                                   builder = builder.Rotate(_rotate);
-            if (_flipH)                                         builder = builder.FlipHorizontal();
-            if (_flipV)                                         builder = builder.FlipVertical();
-            if (_vintage)                                       builder = builder.Vintage();
-            if (_blackWhite)                                    builder = builder.BlackAndWhite();
+            // Color
+            if (_grayscale)   builder = builder.Grayscale();
+            if (_sepia)       builder = builder.Sepia();
+
+            // Presets
+            if (_warmTone)    builder = builder.WarmTone();
+            if (_coolTone)    builder = builder.CoolTone();
+            if (_vintage)     builder = builder.Vintage();
+            if (_blackWhite)  builder = builder.BlackAndWhite();
+            if (_softFocus)   builder = builder.SoftFocus();
+
+            // Adjust
+            if (_brightness != 0) builder = builder.Brightness(_brightness / 100f);
+            if (_contrast   != 0) builder = builder.Contrast(_contrast / 100f);
+            if (_opacity < 100)   builder = builder.Opacity(_opacity / 100f);
+
+            // Focus
+            if (_sharpen)          builder = builder.Sharpen();
+            if (_blur > 0)         builder = builder.Blur(_blur);
+            if (_gaussianBlur > 0) builder = builder.GaussianBlur(_gaussianBlur / 10f);
+
+            // Artistic
+            if (_pixelate > 0) builder = builder.Pixelate(_pixelate);
+
+            // Transform
+            if (_scale != 100) builder = builder.Scale(_scale / 100.0);
+            if (_rotate != 0)  builder = builder.Rotate(_rotate);
+            if (_flipH)        builder = builder.FlipHorizontal();
+            if (_flipV)        builder = builder.FlipVertical();
+
+            // Dark overlay
+            if (_darkOverlay) builder = builder.DarkOverlay();
+
+            // Text watermark
             if (_showWatermark && !string.IsNullOrWhiteSpace(_watermarkText))
+            {
+                var pos = Enum.Parse<WatermarkPosition>(_watermarkPositionStr);
                 builder = builder.WatermarkText(_watermarkText, opts =>
                 {
-                    opts.Position = WatermarkPosition.Center;
-                    opts.FontSize = 500;
+                    opts.Position = pos;
+                    opts.FontSize = _watermarkFontSize;
                     opts.Color    = "#FFFFFF";
-                    opts.Opacity  = 0.9f;
+                    opts.Opacity  = _watermarkOpacity / 100f;
                     opts.PaddingX = 16;
                     opts.PaddingY = 16;
                 });
+            }
+
+            // Image watermark
             if (_showImageWatermark)
             {
-                string imgLogoPath = Path.Combine(Env.WebRootPath, "logo.png");
+                var imgLogoPath = Path.Combine(Env.WebRootPath, "logo.png");
+                var scaledLogoPath = Path.Combine(Env.WebRootPath, "output-test", "scaled-logo.png");
+                var imgPos = Enum.Parse<WatermarkPosition>(_imageWatermarkPositionStr);
 
-                _ =  await ImageFactory.OpenAsync(imgLogoPath).Scale(10).ToWebp().SaveAsync(Path.Combine(Env.WebRootPath, "output-test", "novo-logo.png"), cancellationToken:_cts.Token);
-                
-                builder = builder.Watermark(Path.Combine(Env.WebRootPath, "output-test", "novo-logo.png"), WatermarkPosition.Center);
+                _ = await ImageFactory.OpenAsync(imgLogoPath)
+                    .Scale(10)
+                    .ToWebp()
+                    .SaveAsync(scaledLogoPath, cancellationToken: token);
+
+                builder = builder.Watermark(scaledLogoPath, imgPos, _imageWatermarkOpacity / 100f);
             }
+
+            // Output format
+            builder = _outputFormat switch
+            {
+                "png"  => builder.ToPng(),
+                "webp" => builder.ToWebp(_outputQuality),
+                _      => builder.ToJpeg(_outputQuality),
+            };
 
             var bytes = await builder.ToBytesAsync(token);
             sw.Stop();
 
             if (!token.IsCancellationRequested)
             {
-                _processedDataUrl = $"data:image/jpeg;base64,{Convert.ToBase64String(bytes)}";
+                var mime = _outputFormat switch
+                {
+                    "png"  => "image/png",
+                    "webp" => "image/webp",
+                    _      => "image/jpeg",
+                };
+                _processedDataUrl = $"data:{mime};base64,{Convert.ToBase64String(bytes)}";
                 _elapsedMs = sw.ElapsedMilliseconds;
             }
-            
+
             StateHasChanged();
         }
         catch (OperationCanceledException) { }
@@ -287,8 +478,24 @@
     // ── Reset ────────────────────────────────────────────────────────────────
     private async Task ResetEffectsAsync()
     {
-        _grayscale = _sepia = _sharpen = _flipH = _flipV = _vintage = _blackWhite = _showWatermark = false;
-        _blur = _pixelate = _rotate = 0;
+        _grayscale = _sepia = _sharpen = _flipH = _flipV = false;
+        _vintage = _blackWhite = _warmTone = _coolTone = _softFocus = _darkOverlay = false;
+        _showWatermark = _showImageWatermark = false;
+
+        _brightness = _contrast = _blur = _gaussianBlur = _rotate = _pixelate = 0;
+        _opacity = 100;
+        _scale = 100;
+
+        _watermarkText             = "© VisionSharp";
+        _watermarkPositionStr      = nameof(WatermarkPosition.BottomRight);
+        _watermarkOpacity          = 70;
+        _watermarkFontSize         = 48;
+        _imageWatermarkPositionStr = nameof(WatermarkPosition.Center);
+        _imageWatermarkOpacity     = 70;
+
+        _outputFormat  = "jpeg";
+        _outputQuality = 90;
+
         await ProcessAsync();
     }
 

@@ -23,8 +23,8 @@ jobs:
       - name: Restore 
         run: dotnet restore ./src/VisionSharp/VisionSharp.csproj
 
-      - name: Build 
-        run: dotnet build --no-restore  ./src/VisionSharp/VisionSharp.csproj
+      - name: Build
+        run: dotnet build --no-restore -c Release ./src/VisionSharp/VisionSharp.csproj
 
       - name: Pack 
         run: |

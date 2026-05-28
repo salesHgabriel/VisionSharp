@@ -1,0 +1,12 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <PackageId>VisionSharp.Drawing</PackageId>
+    <Description>Drawing primitives and shape compositing for VisionSharp.</Description>
+    <PackageTags>image;drawing;shapes;visionsharp</PackageTags>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\VisionSharp.Abstractions\VisionSharp.Abstractions.csproj" />
+    <ProjectReference Include="..\VisionSharp.Core\VisionSharp.Core.csproj" />
+  </ItemGroup>
+</Project>

@@ -1,0 +1,26 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <PackageId>VisionSharp.ConsoleDemo</PackageId>
+    <Description>Console demonstration of VisionSharp capabilities.</Description>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="SixLabors.ImageSharp" Version="3.1.12" />
+    <PackageReference Include="SixLabors.ImageSharp.Drawing" Version="2.1.7" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\VisionSharp\VisionSharp.csproj" />
+    <ProjectReference Include="..\..\src\VisionSharp.Drawing\VisionSharp.Drawing.csproj" />
+    <ProjectReference Include="..\..\src\VisionSharp.Processing\VisionSharp.Processing.csproj" />
+    <ProjectReference Include="..\..\src\VisionSharp.Formats\VisionSharp.Formats.csproj" />
+    <ProjectReference Include="..\..\src\VisionSharp.Extensions\VisionSharp.Extensions.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="images\**\*">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+</Project>

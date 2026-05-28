@@ -1,0 +1,32 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <BlazorDisableThrowNavigationException>true</BlazorDisableThrowNavigationException>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="SixLabors.ImageSharp" Version="3.1.12" />
+    <PackageReference Include="SixLabors.ImageSharp.Drawing" Version="2.1.7" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\VisionSharp\VisionSharp.csproj" />
+    <ProjectReference Include="..\..\src\VisionSharp.Drawing\VisionSharp.Drawing.csproj" />
+    <ProjectReference Include="..\..\src\VisionSharp.Processing\VisionSharp.Processing.csproj" />
+    <ProjectReference Include="..\..\src\VisionSharp.Formats\VisionSharp.Formats.csproj" />
+    <ProjectReference Include="..\..\src\VisionSharp.Extensions\VisionSharp.Extensions.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="wwwroot\logo.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="wwwroot\output-test\" />
+  </ItemGroup>
+</Project>

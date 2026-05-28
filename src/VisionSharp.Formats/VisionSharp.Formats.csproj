@@ -1,0 +1,12 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <PackageId>VisionSharp.Formats</PackageId>
+    <Description>Format conversion helpers and format-specific encoding extensions for VisionSharp.</Description>
+    <PackageTags>image;formats;jpeg;png;webp;visionsharp</PackageTags>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\VisionSharp.Abstractions\VisionSharp.Abstractions.csproj" />
+    <ProjectReference Include="..\VisionSharp.Core\VisionSharp.Core.csproj" />
+  </ItemGroup>
+</Project>

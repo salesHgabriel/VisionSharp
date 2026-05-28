@@ -1,0 +1,12 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <PackageId>VisionSharp.Extensions</PackageId>
+    <Description>General-purpose extension methods and utilities for VisionSharp.</Description>
+    <PackageTags>image;extensions;utilities;visionsharp</PackageTags>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\VisionSharp.Abstractions\VisionSharp.Abstractions.csproj" />
+    <ProjectReference Include="..\VisionSharp.Core\VisionSharp.Core.csproj" />
+  </ItemGroup>
+</Project>

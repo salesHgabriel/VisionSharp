@@ -1,0 +1,49 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <PackageId>VisionSharp</PackageId>
+    <Description>A modern, fluent image manipulation library for .NET 10, inspired by Intervention Image v4. Supports multiple graphic engines, a lazy pipeline API, and NuGet-ready packaging.</Description>
+    <PackageTags>image;manipulation;imagesharp;fluent;pipeline;watermark;resize;crop;visionsharp</PackageTags>
+    <Version>1.1.1</Version>
+    <Authors>Gabriel Sales</Authors>
+    <Copyright>MIT</Copyright>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <Title>VisionSharp</Title>
+    <PackageProjectUrl>https://github.com/salesHgabriel/VisionSharp</PackageProjectUrl>
+    <PackageIcon>visionsharp-logo.png</PackageIcon>
+    <RepositoryUrl>https://github.com/salesHgabriel/VisionSharp</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <PackageTags>manipulation-images</PackageTags>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\VisionSharp.Abstractions\VisionSharp.Abstractions.csproj" />
+    <ProjectReference Include="..\VisionSharp.Core\VisionSharp.Core.csproj" />
+    <ProjectReference Include="..\VisionSharp.Drawing\VisionSharp.Drawing.csproj" />
+    <ProjectReference Include="..\VisionSharp.Processing\VisionSharp.Processing.csproj" />
+    <ProjectReference Include="..\VisionSharp.Formats\VisionSharp.Formats.csproj" />
+    <ProjectReference Include="..\VisionSharp.Extensions\VisionSharp.Extensions.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="9.0.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="..\..\README.md">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+      <Link>README.md</Link>
+    </None>
+  </ItemGroup>
+
+
+  <ItemGroup>
+    <None Include="..\..\visionsharp-logo.png">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+      <Link>visionsharp-logo.png</Link>
+    </None>
+  </ItemGroup>
+</Project>

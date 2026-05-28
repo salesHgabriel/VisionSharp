@@ -24,7 +24,7 @@ jobs:
         run: dotnet restore ./src/VisionSharp/VisionSharp.csproj
 
       - name: Build
-        run: dotnet build --no-restore -c Release ./src/VisionSharp/VisionSharp.csproj
+        run: dotnet build --no-restore ./src/VisionSharp/VisionSharp.csproj
 
       - name: Pack 
         run: |
@@ -33,7 +33,7 @@ jobs:
 
       - name: Publish Client to Nuget.Org
         run: |
-          dotnet nuget push output-client/*.nupkg -k ${{ secrets.NUGET_API_KEY }} -s https://api.nuget.org/v3/index.json --skip-duplicate
+          dotnet nuget push output-client/*.nupkg --api-key ${{ secrets.NUGET_API_KEY }} -s https://api.nuget.org/v3/index.json --skip-duplicate
       
     
       

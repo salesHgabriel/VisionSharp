@@ -32,8 +32,10 @@ jobs:
 
 
       - name: Publish Client to Nuget.Org
+        env:
+          NUGET_API_KEY: ${{ secrets.NUGET_API_KEY }}
         run: |
-          dotnet nuget push output-client/*.nupkg --api-key ${{ secrets.NUGET_API_KEY }} -s https://api.nuget.org/v3/index.json --skip-duplicate
+          dotnet nuget push output-client/*.nupkg -s https://api.nuget.org/v3/index.json --skip-duplicate
       
     
       

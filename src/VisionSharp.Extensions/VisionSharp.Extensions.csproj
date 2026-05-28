@@ -1,6 +1,6 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <PackageId>VisionSharp.Extensions</PackageId>
+    <PackageId>VisionSharp.Imaging.Extensions</PackageId>
     <Description>General-purpose extension methods and utilities for VisionSharp.</Description>
     <PackageTags>image;extensions;utilities;visionsharp</PackageTags>
   </PropertyGroup>

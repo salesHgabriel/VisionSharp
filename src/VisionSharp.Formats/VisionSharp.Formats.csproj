@@ -1,6 +1,6 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <PackageId>VisionSharp.Formats</PackageId>
+    <PackageId>VisionSharp.Imaging.Formats</PackageId>
     <Description>Format conversion helpers and format-specific encoding extensions for VisionSharp.</Description>
     <PackageTags>image;formats;jpeg;png;webp;visionsharp</PackageTags>
   </PropertyGroup>

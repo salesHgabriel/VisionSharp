@@ -20,6 +20,9 @@ jobs:
         run: |
           sed -i -e 's/1.1.1/${{github.ref_name}}/' ./src/VisionSharp/VisionSharp.csproj
 
+      - name: Clean
+        run: dotnet clean ./src/VisionSharp/VisionSharp.csproj
+
       - name: Restore 
         run: dotnet restore ./src/VisionSharp/VisionSharp.csproj
 

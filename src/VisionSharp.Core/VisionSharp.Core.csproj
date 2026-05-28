@@ -1,6 +1,6 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <PackageId>VisionSharp.Core</PackageId>
+    <PackageId>VisionSharp.Imaging.Core</PackageId>
     <Description>Core implementation of VisionSharp, including the ImageSharp engine, fluent builder, and processing pipeline.</Description>
     <PackageTags>image;manipulation;imagesharp;visionsharp</PackageTags>
   </PropertyGroup>

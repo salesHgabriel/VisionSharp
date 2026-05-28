@@ -1,6 +1,6 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <PackageId>VisionSharp.Abstractions</PackageId>
+    <PackageId>VisionSharp.Imaging.Abstractions</PackageId>
     <Description>Abstractions and interfaces for the VisionSharp image manipulation library.</Description>
     <PackageTags>image;manipulation;abstractions;interfaces;visionsharp</PackageTags>
   </PropertyGroup>

@@ -1,6 +1,6 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <PackageId>VisionSharp.Drawing</PackageId>
+    <PackageId>VisionSharp.Imaging.Drawing</PackageId>
     <Description>Drawing primitives and shape compositing for VisionSharp.</Description>
     <PackageTags>image;drawing;shapes;visionsharp</PackageTags>
   </PropertyGroup>

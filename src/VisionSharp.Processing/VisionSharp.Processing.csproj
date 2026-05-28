@@ -1,6 +1,6 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <PackageId>VisionSharp.Processing</PackageId>
+    <PackageId>VisionSharp.Imaging.Processing</PackageId>
     <Description>Advanced processing extensions for VisionSharp (vignette, tint, color grading, etc.).</Description>
     <PackageTags>image;processing;effects;visionsharp</PackageTags>
   </PropertyGroup>

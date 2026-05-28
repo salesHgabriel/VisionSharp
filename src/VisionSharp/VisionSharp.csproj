@@ -1,6 +1,6 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <PackageId>VisionSharp</PackageId>
+    <PackageId>VisionSharp.Imaging</PackageId>
     <Description>A modern, fluent image manipulation library for .NET 10, inspired by Intervention Image v4. Supports multiple graphic engines, a lazy pipeline API, and NuGet-ready packaging.</Description>
     <PackageTags>image;manipulation;imagesharp;fluent;pipeline;watermark;resize;crop;visionsharp</PackageTags>
     <Version>1.1.1</Version>
@@ -13,7 +13,6 @@
     <PackageIcon>visionsharp-logo.png</PackageIcon>
     <RepositoryUrl>https://github.com/salesHgabriel/VisionSharp</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
-    <PackageTags>manipulation-images</PackageTags>
     <PackageReadmeFile>README.md</PackageReadmeFile>
   </PropertyGroup>
 

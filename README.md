@@ -47,7 +47,7 @@ Console.WriteLine($"Done: {image.Width}×{image.Height}");
 ## Installation
 
 ```bash
-dotnet add package VisionSharp
+dotnet add package VisionSharp.Imaging
 ```
 
 ---

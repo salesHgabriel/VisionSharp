@@ -33,7 +33,7 @@ jobs:
 
       - name: Publish Client to Nuget.Org
         run: |
-          dotnet nuget push output-client/*.nupkg -k ${{ secrets.NUGET_API_KEY_VISI0NSHARP }} -s https://api.nuget.org/v3/index.json --skip-duplicate
+          dotnet nuget push output-client/*.nupkg -k ${{ secrets.NUGET_API_KEY }} -s https://api.nuget.org/v3/index.json --skip-duplicate
       
     
       

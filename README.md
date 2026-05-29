@@ -68,6 +68,9 @@ ImageFactory.OpenAsync(bytes)
 
 // Base64
 ImageFactory.OpenBase64Async(base64String)
+
+// URL (download is deferred until the terminal call)
+ImageFactory.OpenAsync(new Uri("https://example.com/photo.jpg"))
 ```
 
 ### Resize

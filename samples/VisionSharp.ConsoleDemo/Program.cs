@@ -56,7 +56,7 @@ while (true)
         continue;
     }
 
-    if (int.TryParse(input, out int choice) && choice >= 1 && choice <= 15)
+    if (int.TryParse(input, out int choice) && choice >= 1 && choice <= 16)
         await RunDemoAsync(choice, imagePath);
     else
         WriteError("Invalid option. Type a number from the menu, 0 for all, i to change image, or q to quit.");
@@ -96,6 +96,7 @@ static void PrintMenu()
     Console.WriteLine("  13  Stream I/O");
     Console.WriteLine("  14  Vintage preset");
     Console.WriteLine("  15  Black & White preset");
+    Console.WriteLine("  16  Load from URL");
     Console.ForegroundColor = ConsoleColor.DarkCyan;
     Console.WriteLine("  ─────────────────────────────────────────────");
     Console.ResetColor();
@@ -122,7 +123,7 @@ static async Task RunAllDemosAsync(string imagePath)
     Console.ResetColor();
 
     var sw = Stopwatch.StartNew();
-    for (int i = 1; i <= 15; i++)
+    for (int i = 1; i <= 16; i++)
         await RunDemoAsync(i, imagePath);
 
     sw.Stop();
@@ -262,6 +263,17 @@ static async Task RunDemoAsync(int choice, string imagePath)
                 await ImageFactory.OpenAsync(imagePath).BlackAndWhite().SaveAsync("output/demo_bw.jpg");
                 WriteOk("output/demo_bw.jpg", sw);
                 break;
+
+            case 16:
+                string url = AskUrl("  Image URL (Enter for demo URL): ", "https://picsum.photos/800/600");
+                Console.Write($"  [16] Load from URL → Resize → Save … ");
+                await ImageFactory
+                    .OpenAsync(new Uri(url))
+                    .Resize(800, 600)
+                    .ToJpeg(90)
+                    .SaveAsync("output/demo_from_url.jpg");
+                WriteOk("output/demo_from_url.jpg", sw);
+                break;
         }
     }
     catch (Exception ex)
@@ -293,6 +305,15 @@ static int AskInt(string prompt, int defaultValue, int min, int max)
     Console.Write($"  {prompt}");
     string? raw = Console.ReadLine()?.Trim();
     if (int.TryParse(raw, out int v) && v >= min && v <= max) return v;
+    return defaultValue;
+}
+
+static string AskUrl(string prompt, string defaultValue)
+{
+    Console.WriteLine();
+    Console.Write($"  {prompt}");
+    string? raw = Console.ReadLine()?.Trim();
+    if (!string.IsNullOrEmpty(raw) && Uri.TryCreate(raw, UriKind.Absolute, out _)) return raw;
     return defaultValue;
 }
 

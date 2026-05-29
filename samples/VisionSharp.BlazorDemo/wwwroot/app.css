@@ -130,7 +130,28 @@ html, body { height: 100%; background: var(--bg); color: var(--text); font-famil
     padding: .5rem .9rem;
     background: var(--surface2);
     display: flex;
-    justify-content: flex-end;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: .4rem;
+}
+
+.url-row {
+    display: flex;
+    gap: .4rem;
+    align-items: center;
+    width: 100%;
+}
+
+.url-input {
+    flex: 1;
+    min-width: 0;
+}
+
+.url-error {
+    font-size: .75rem;
+    color: #e05c5c;
+    margin: 0;
+    width: 100%;
 }
 
 /* ── Controls grid ───────────────────────────────────────────────────────── */

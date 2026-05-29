@@ -22,6 +22,7 @@ namespace VisionSharp;
 public static class ImageFactory
 {
     private static Func<IImageEngine> _engineFactory = () => new ImageSharpEngine();
+    private static readonly HttpClient _httpClient = new();
 
     /// <summary>
     /// Overrides the engine factory used to create engine instances.
@@ -56,5 +57,16 @@ public static class ImageFactory
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(base64);
         return new ImageBuilder(_engineFactory, (engine, ct) => engine.LoadFromBase64Async(base64, ct));
+    }
+
+    /// <summary>Opens an image from a URL. The download is deferred to the terminal call.</summary>
+    public static IImageBuilder OpenAsync(Uri url)
+    {
+        ArgumentNullException.ThrowIfNull(url);
+        return new ImageBuilder(_engineFactory, async (engine, ct) =>
+        {
+            var bytes = await _httpClient.GetByteArrayAsync(url, ct);
+            await engine.LoadFromBytesAsync(bytes, ct);
+        });
     }
 }

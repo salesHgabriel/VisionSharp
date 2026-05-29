@@ -9,6 +9,7 @@ namespace VisionSharp.DependencyInjection;
 /// </summary>
 internal sealed class ServicedImageFactory : IImageFactory
 {
+    private static readonly HttpClient _httpClient = new();
     private readonly Func<IImageEngine> _engineFactory;
 
     public ServicedImageFactory(Func<IImageEngine> engineFactory)
@@ -31,4 +32,15 @@ internal sealed class ServicedImageFactory : IImageFactory
     /// <inheritdoc/>
     public IImageBuilder OpenBase64Async(string base64)
         => new ImageBuilder(_engineFactory, (e, ct) => e.LoadFromBase64Async(base64, ct));
+
+    /// <inheritdoc/>
+    public IImageBuilder OpenAsync(Uri url)
+    {
+        ArgumentNullException.ThrowIfNull(url);
+        return new ImageBuilder(_engineFactory, async (e, ct) =>
+        {
+            var bytes = await _httpClient.GetByteArrayAsync(url, ct);
+            await e.LoadFromBytesAsync(bytes, ct);
+        });
+    }
 }

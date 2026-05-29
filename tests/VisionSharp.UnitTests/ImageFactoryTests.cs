@@ -83,4 +83,41 @@ public sealed class ImageFactoryTests
 
         builder.Should().BeOfType<ImageBuilder>();
     }
+
+    [Fact]
+    public void OpenAsync_WithUri_ReturnsImageBuilder()
+    {
+        var uri = new Uri("https://example.com/photo.jpg");
+        var builder = ImageFactory.OpenAsync(uri);
+
+        builder.Should().NotBeNull();
+        builder.Should().BeAssignableTo<IImageBuilder>();
+    }
+
+    [Fact]
+    public void OpenAsync_WithUri_ReturnsSameTypeAsImageBuilder()
+    {
+        var uri = new Uri("https://example.com/photo.jpg");
+        var builder = ImageFactory.OpenAsync(uri);
+
+        builder.Should().BeOfType<ImageBuilder>();
+    }
+
+    [Fact]
+    public void OpenAsync_NullUri_ThrowsArgumentNullException()
+    {
+        var act = () => ImageFactory.OpenAsync((Uri)null!);
+
+        act.Should().Throw<ArgumentNullException>();
+    }
+
+    [Fact]
+    public void OpenAsync_WithRelativeUri_ReturnsImageBuilder()
+    {
+        var uri = new Uri("/images/photo.jpg", UriKind.Relative);
+        var builder = ImageFactory.OpenAsync(uri);
+
+        builder.Should().NotBeNull();
+        builder.Should().BeAssignableTo<IImageBuilder>();
+    }
 }

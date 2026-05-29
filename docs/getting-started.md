@@ -24,6 +24,29 @@ var image = await ImageFactory
 Console.WriteLine($"Saved: {image.Width}×{image.Height}");
 ```
 
+## Loading from a URL
+
+`OpenAsync` also accepts a `Uri`. The HTTP download happens lazily, at the same moment the rest of the pipeline executes (when you call a terminal method).
+
+```csharp
+var image = await ImageFactory
+    .OpenAsync(new Uri("https://example.com/photo.jpg"))
+    .Resize(800, 600)
+    .ToJpeg(85)
+    .SaveAsync("output.jpg");
+```
+
+Pass a `CancellationToken` to any terminal method to cancel both the download and the processing:
+
+```csharp
+using var cts = new CancellationTokenSource(TimeSpan.FromSeconds(10));
+
+var bytes = await ImageFactory
+    .OpenAsync(new Uri("https://example.com/photo.jpg"))
+    .Grayscale()
+    .ToBytesAsync(cts.Token);
+```
+
 ## Understanding the pipeline
 
 `ImageFactory.OpenAsync(...)` returns an `IImageBuilder`. Each method call on the

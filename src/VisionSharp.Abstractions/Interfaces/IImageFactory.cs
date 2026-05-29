@@ -17,4 +17,7 @@ public interface IImageFactory
 
     /// <summary>Opens an image from a Base64-encoded string.</summary>
     IImageBuilder OpenBase64Async(string base64);
+
+    /// <summary>Opens an image from a URL. The download is deferred to the terminal call.</summary>
+    IImageBuilder OpenAsync(Uri url);
 }

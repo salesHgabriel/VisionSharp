@@ -28,6 +28,17 @@
                     Replace image
                     <InputFile OnChange="HandleFileUploadAsync" accept="image/*" class="file-input-hidden" />
                 </label>
+                <div class="url-row">
+                    <input class="text-input url-input" type="url" placeholder="https://…"
+                           @bind="_urlInput" @bind:event="oninput" />
+                    <button class="btn-ghost" @onclick="LoadFromUrlAsync" disabled="@_urlLoading">
+                        @(_urlLoading ? "Loading…" : "Load URL")
+                    </button>
+                </div>
+                @if (_urlError is not null)
+                {
+                    <p class="url-error">@_urlError</p>
+                }
             </div>
         </div>
 
@@ -293,6 +304,10 @@
 
     private static readonly string[] OutputFormats = ["jpeg", "png", "webp"];
 
+    private string  _urlInput   = string.Empty;
+    private bool    _urlLoading;
+    private string? _urlError;
+
     private CancellationTokenSource? _cts;
     private Timer? _debounce;
 
@@ -333,6 +348,35 @@
         await e.File.OpenReadStream(maxAllowedSize: 30 * 1024 * 1024).CopyToAsync(ms);
         _originalBytes = ms.ToArray();
         await ProcessAsync();
+    }
+
+    // ── URL load ─────────────────────────────────────────────────────────────
+    private async Task LoadFromUrlAsync()
+    {
+        _urlError = null;
+        if (!Uri.TryCreate(_urlInput, UriKind.Absolute, out var uri) ||
+            (uri.Scheme != Uri.UriSchemeHttp && uri.Scheme != Uri.UriSchemeHttps))
+        {
+            _urlError = "Please enter a valid HTTP or HTTPS URL.";
+            return;
+        }
+
+        _urlLoading = true;
+        StateHasChanged();
+        try
+        {
+            _originalBytes = await ImageFactory.OpenAsync(uri).ToBytesAsync();
+            await ProcessAsync();
+        }
+        catch (Exception ex)
+        {
+            _urlError = $"Could not load image: {ex.Message}";
+        }
+        finally
+        {
+            _urlLoading = false;
+            StateHasChanged();
+        }
     }
 
     // ── Slider / text handlers (debounced) ───────────────────────────────────
